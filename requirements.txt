@@ -1,2 +1,2 @@
 streamlit
-graphviz
+graphviz==0.16
