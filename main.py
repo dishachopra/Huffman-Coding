@@ -50,15 +50,22 @@ def TotalGain(the_data, coding):
 
 def calculateEntropy(probabilities):
     entropy = 0
+    sum=0
     for probability in probabilities:
-        entropy += probability * math.log2(1/probability)
+        sum+=probability
+    for probability in probabilities:
+        entropy += (probability/sum) * math.log2(sum/probability)
     return entropy
 
 def calculateAverageLength(coding, probabilities):
     averageLength = 0
+    sumq = 0
+    for probability in probabilities.values():
+        sumq += float(probability)
     for symbol, probability in probabilities.items():
-        averageLength += probability * len(coding[symbol])
+        averageLength += (float(probability)/sumq) * len(coding[symbol])
     return averageLength
+
 
 def HuffmanEncoding(the_data):
     symbolWithProbs = calProb(the_data)
@@ -90,6 +97,22 @@ def HuffmanEncoding(the_data):
     averageLength = calculateAverageLength(huffmanEncoding, symbolWithProbs)
     output = encodedOutput(the_data, huffmanEncoding)
     return output, the_nodes[0], befComp, afComp, entropy, averageLength
+
+def HuffmanDecoding(encoded_string, huffman_tree):
+    decoded_string = ""
+    current_node = huffman_tree
+    
+    for bit in encoded_string:
+        if bit == '0':
+            current_node = current_node.left
+        else:
+            current_node = current_node.right
+        
+        if current_node.left is None and current_node.right is None:
+            decoded_string += current_node.symbol
+            current_node = huffman_tree
+    
+    return decoded_string
 
 def print_symbol_frequencies(symbol_frequencies):
     table_data = [["Symbol", "Frequency", "Code"]]
@@ -143,10 +166,17 @@ def main():
     st.write("After Compression (no. of bits): ", afComp)
     st.write("Entropy: ", entropy)
     st.write("Average Length: ", averageLength)
+    
+    st.markdown("<h2 style='font-size: 24px;text-align: center; color: #457B9D;'>Huffman Decoding:</h2>", unsafe_allow_html=True)
+    encoded_input = st.text_input("Enter the encoded string:")
+    decoded_output = HuffmanDecoding(encoded_input, the_tree)
+    st.write("Decoded Output:", decoded_output)
 
     st.markdown("<h2 style='font-size: 24px; text-align: center;color: #457B9D;'>Symbols, Frequencies and Codes:</h2>", unsafe_allow_html=True)
     symbol_frequencies = calProb(the_data)
     print_symbol_frequencies(symbol_frequencies)
+
+
 
 if __name__ == '__main__':
     main()
