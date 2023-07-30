@@ -187,6 +187,9 @@ def main():
     st.markdown(
         """
         <style>
+        body {
+            background-color: black;
+        }
         h1 { 
             color: #457B9D;
             text-align: center;
