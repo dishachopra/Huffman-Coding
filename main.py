@@ -183,6 +183,16 @@ def create_graph(node, dot, parent=None):
             dot.edge(str(parent), str(node.right), label='1', color='#00FF00')
         create_graph(node.right, dot, node.right)
 
+def check_huffman_codes(codes_input):
+    # Check if all codes are binary and unique
+    valid_codes = all(code_input.isdigit() and set(code_input) <= {'0', '1'} for code_input in codes_input.values())
+    unique_codes = len(set(codes_input.values())) == len(codes_input)
+
+    if valid_codes and unique_codes:
+        return True
+    else:
+        return False
+
 def main():
     st.markdown(
         """
@@ -222,18 +232,53 @@ def main():
 
     st.markdown("<h1 style='text-align: center; color: #FFFF66;'>Huffman Coding</h1>", unsafe_allow_html=True)
 
-    st.markdown("<p style='text-align: justify;'>Once upon a time in the bustling kingdom of Cyberspace, there lived a brilliant young wizard named Alex. "
-            "He had a deep passion for unraveling the mysteries of magic and had a knack for solving complex problems. "
-            "However, there was one puzzle that had been troubling him for quite some time - the challenge of data compression.</p>",
+    st.markdown("<p style='text-align: justify;'>Welcome to the world of data compression! In this blog, we will explore the art of reducing the size of data without sacrificing any vital information. Let's start by inputting your data, a sequence of characters, and then proceed to create binary codes for each character.Please enter your data, and for each character, provide a binary code comprising 0s and 1s. Ensure that each code is unique, and only binary codes are accepted.</p>",
             unsafe_allow_html=True)
 
-    st.markdown("<p style='text-align: justify;'>In the kingdom of Cyberspace, the inhabitants communicated using various magical symbols and spells. "
-            "As the amount of information exchanged increased, so did the burden of storing and transmitting it. "
-            "The wise queen, who ruled the land, knew that they needed a solution to compress this data and make it more manageable.</p>",
-            unsafe_allow_html=True)
+    
+    st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the string:</p>", unsafe_allow_html=True)
+    st.write("You can modify the default string")
+    the_data = st.text_input("", "huffman")
+    def is_binary_code(code):
+        return all(bit in ('0', '1') for bit in code)
+
+    def is_unique_codes(codes):
+        return len(codes) == len(set(codes.values()))
+    st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the codes for each character:</p>", unsafe_allow_html=True)
+    codes_input = {}
+    for symbol in set(the_data):
+        if symbol in codes_input:
+        # If the code for the symbol has already been entered, skip it.
+            continue
+    
+        code = st.text_input(f"Enter code for '{symbol}':")
+        if code:
+            if not is_binary_code(code):
+                st.error("Please enter a binary code (containing only 0s and 1s).")
+                st.stop()
+            codes_input[symbol] = code
+
+# Check if the codes are unique
+    if not is_unique_codes(codes_input):
+        st.error("Please make sure all codes are unique.")
+        st.stop()
+
+    if codes_input:
+        encoded_string = ''.join([codes_input[symbol] for symbol in the_data])
+
+        st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Encoded Output:</h3>", unsafe_allow_html=True)
+        st.latex(f"{encoded_string}")
+
+        st.write("Encoded Output Length (in bits):", f"<span style='color: yellow;'>{len(encoded_string)}</span>", unsafe_allow_html=True)
+
+        # Check if there is a better way to encode
+        if len(set(encoded_string)) == 1:
+            st.markdown("Wow! The encoded string consists of only one unique symbol. It cannot be compressed further.")
+        else:
+            st.markdown("Great! Now that the data is encoded, let's see if there's a better way to compress it.")
 
     # Section 2: Explanation of Huffman Coding
-    st.markdown("<h2 style='text-align: center;color: #FFFF66;'>Let's understand from Alex the solution</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;color: #FFFF66;'>The Problem:</h2>", unsafe_allow_html=True)
 
     st.markdown("In the digital world, we deal with lots of data every day, from text messages to images and videos. "
                 "Transmitting or storing this data requires space and time. Imagine if we could somehow make this data "
@@ -241,9 +286,8 @@ def main():
     st.markdown("<h2 style='text-align: center;color: #FFFF66;'>The Solution - Huffman Coding:</h2>", unsafe_allow_html=True)
     st.markdown("Huffman Coding is a smart way to compress data. It was invented by David A. Huffman, and it works like magic! "
                 "The basic idea is to give shorter codes to more common characters or pieces of data and longer codes to the less common ones. "
-                "This makes the data take up less space.")
-    st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the data:</p>", unsafe_allow_html=True)
-    the_data = st.text_input("", "huffman")
+                "This makes the data take up less space. It is a lossless method for compressing and encoding text based on the frequency of the characters in the text. In information theory and computer science studies, Huffman code is a special type of optimal prefix code that is generally utilized for lossless data compression.")
+    
 
 
 
@@ -253,7 +297,7 @@ def main():
     st.latex(encoding)
 
     st.markdown("<h2 style='text-align: center;color: #FFFF66;'>Huffman Tree</h2>", unsafe_allow_html=True)
-    st.markdown("To start with Huffman Coding, we first analyze the data to see how often each character or piece of data appears. "
+    st.markdown("To start with Huffman Coding, we first analyze the data to see how often each character or piece of data appears. We can use greedy algorithm to construct the tree. "
                 "We give each one a 'weight' based on its frequency. With the weights assigned, we create a special tree called the 'Huffman Tree'. In this tree, the characters with higher "
                 "weights (more frequent) are closer to the top, and those with lower weights (less frequent) are closer to the bottom.")
     
@@ -266,7 +310,7 @@ def main():
         - <h2 style="font-size: 20px;">Repeat:</h2> <span style="font-size: 20px;">Continue merging nodes until only one node remains in the priority queue. This node becomes the root of the Huffman tree.
         - <h2 style="font-size: 20px;">Assign Binary Codes:</h2> <span style="font-size: 20px;">Traverse the Huffman tree from the root to each leaf node. Assign a binary code to each character based on the path taken (left or right) during the traversal. The path to the left child is assigned a 0, and the path to the right child is assigned a 1.
     """, unsafe_allow_html=True)
-    3 
+    
 
     with st.expander("Watch the tree!", expanded=False):
         print_huffman_tree(the_tree)
@@ -282,46 +326,124 @@ def main():
                 "take up less space. This leads to an overall reduction in the size of the data, making it smaller and more manageable. Since the more common characters have shorter codes, they take less time to transmit or store. This makes the data transmission "
                 "faster and more efficient.")
 
-    with st.expander("Entropy", expanded=False):
-        st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Entropy- Measuring Efiiciency:</h3>", unsafe_allow_html=True)
+
+    st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Entropy- Measuring Efiiciency:</h3>", unsafe_allow_html=True)
 
     #what is entropy and average length of the code
-        st.markdown("Entropy is a measure of the randomness of the data. The higher the entropy, the more random the data is. "
+    st.markdown("Entropy is a measure of the randomness of the data. The higher the entropy, the more random the data is. "
                     "Entropy is calculated using the probability of each symbol in the data. "
                     "The more random the data is, the more bits we need to represent it. "
                     "So, the higher the entropy, the longer the average length of the code.")
     
 
-        st.latex(r'''H(X) = -\sum_{i=1}^{n} p(x_i) \log_2 p(x_i)''')
-        st.markdown("Where: " + r"$p(x_i)$" + " is the probability of the symbol")
-    with st.expander("Average Length", expanded=False):
-        st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Average Length:</h3>", unsafe_allow_html=True)
+    st.latex(r'''H(X) = -\sum_{i=1}^{n} p(x_i) \log_2 p(x_i)''')
+    st.markdown("Where: " + r"$p(x_i)$" + " is the probability of the symbol")
+    # Inside main() function, after getting the frequency table symbol_frequencies.
+    # Inside main() function, after getting the frequency table symbol_frequencies.
+    # Inside main() function, after getting the frequency table symbol_frequencies.
+    symbol_frequencies = calFreq(the_data)
 
-        st.markdown("Average length is the average number of bits required to represent each symbol in the data. "
+# Calculate probabilities
+    total_symbols = sum(symbol_frequencies.values())
+    probabilities = [frequency / total_symbols for frequency in symbol_frequencies.values()]
+
+
+
+
+# Print the probabilities and terms of the entropy equation
+    st.write("Let's calculate entropy for the string provided earlier:")
+    for symbol, frequency in symbol_frequencies.items():
+        probability = frequency / total_symbols
+        st.write(f"p({symbol}) = {probability:.2f}")
+
+# Display the fully written entropy equation
+    entropy_eq_fully_written = f"Entropy = -(" + " - ".join([f"{probability:.2f} \cdot \log_2(1 / {probability:.2f})" for probability in probabilities]) + ")"
+    st.latex(entropy_eq_fully_written)
+
+    # Calculate and print entropy
+    entropy_text = f"<span style='color: white;'>Entropy of the input data: </span><span style='color: yellow;'>{entropy:.2f}</span>"
+    st.markdown(entropy_text, unsafe_allow_html=True)
+
+
+
+
+    
+
+
+    
+    
+
+    
+
+    st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Average Length:</h3>", unsafe_allow_html=True)
+
+    st.markdown("Average length is the average number of bits required to represent each symbol in the data. "
                 "It's calculated using the probability of each symbol and the length of the code assigned to it. "
                 "The more common the symbol, the shorter the code, and the less common the symbol, the longer the code. "
                 "So, the more common the symbol, the shorter the average length of the code.")
 
-        st.latex(r'''L(X) = \sum_{i=1}^{n} p(x_i) l(x_i)''')
-        st.markdown("Where: " + r"$l(x_i)$" + " is the length of the symbol")
+    st.latex(r'''L(X) = \sum_{i=1}^{n} p(x_i) l(x_i)''')
+    st.markdown("Where: " + r"$l(x_i)$" + " is the length of the symbol")
+    # Inside main() function, after getting the frequency table symbol_frequencies.
+    symbol_frequencies = calFreq(the_data)
 
-    with st.expander("Compression Metrices", expanded=False):
-        st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Compression Metrics:</h3>", unsafe_allow_html=True)
+# Calculate probabilities
+    total_symbols = sum(symbol_frequencies.values())
+    probabilities = [frequency / total_symbols for frequency in symbol_frequencies.values()]
 
-        st.markdown("The compression ratio tells us how much smaller the compressed data is compared to the original data. "
-                "The higher the compression ratio, the better the compression!")
-        st.latex(r'''Compression Ratio = \frac{Before Compression}{After Compression}''')
+# Calculate and print average length
+    average_length = calculateAverageLength(codes, symbol_frequencies)
+
+# Format the average length equation using LaTeX
+    avg_length_eq_latex = "L(X) = \sum_{i=1}^{n} p(x_i) l(x_i)"
+
+# Print the probabilities and lengths of each symbol
+    st.write("Let's calculate the average length for the string provided earlier:")
+    for symbol, frequency in symbol_frequencies.items():
+        probability = frequency / total_symbols
+        st.write(f" l({symbol}) = {len(codes[symbol])}")
+
+# Display the value of average_length
     
-        st.markdown("Let's see how well our compression works for the data you input earlier:")
+    average_length = calculateAverageLength(codes, symbol_frequencies)
+
+# Calculate the lengths of each code in the average length equation
+    lengths = [len(code) for code in codes.values()]
+
+# Format the average length equation using LaTeX with actual code lengths
+    avg_eq_fully_written = f"L(X) = " + " + ".join([f"{probability:.2f} \cdot {length:.2f}" for probability, length in zip(probabilities, lengths)])
+
+# Display the value of average_length and the fully written average length equation
+   
+    st.latex(avg_eq_fully_written)
+
+
+
+
+
+    average_text = f"<span style='color: white;'>Average Length: </span><span style='color: yellow;'>{average_length:.2f}</span>"
+    st.markdown(average_text, unsafe_allow_html=True)
+
+
+
+
+
+
+ 
+    st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Compression Metrics:</h3>", unsafe_allow_html=True)
+
+    st.markdown("The compression ratio tells us how much smaller the compressed data is compared to the original data. "
+                "The higher the compression ratio, the better the compression!")
+    st.latex(r'''\mathrm{Compression Ratio} = \frac{\mathrm{Before\ Compression}}{\mathrm{After\ Compression}}''')
+    
+    st.markdown("Let's see how well our compression works for the data you input earlier:")
 
     # Compression Metrics
 
-        st.write("Before Compression with uniform code length (no. of bits): ", f"<span style='color: #FFFF66;'>{befComp}</span>", unsafe_allow_html=True)
-        st.write("After Compression with Huffman code (no. of bits): ", f"<span style='color: #FFFF66;'>{afComp}</span>", unsafe_allow_html=True)
-        st.write("Compression Ratio: ", f"<span style='color: #FFFF66;'>{round(befComp / afComp, 2)}</span>", unsafe_allow_html=True)
-        st.write("Entropy: ", f"<span style='color: #FFFF66;'>{entropy}</span>", unsafe_allow_html=True)
-        st.write("Average Length: ", f"<span style='color: #FFFF66;'>{averageLength}</span>", unsafe_allow_html=True)
-
+    st.write("Before Compression with uniform code length (no. of bits): ", f"<span style='color: #FFFF66;'>{befComp}</span>", unsafe_allow_html=True)
+    st.write("After Compression with Huffman code (no. of bits): ", f"<span style='color: #FFFF66;'>{afComp}</span>", unsafe_allow_html=True)
+    st.write("Compression Ratio: ", f"<span style='color: #FFFF66;'>{round(befComp / afComp, 2)}</span>", unsafe_allow_html=True)
+    
 
     # Huffman Decoding
     st.markdown("<h2 style='text-align: center; color: #FFFF66;'>Huffman Decoding</h2>", unsafe_allow_html=True)
@@ -333,7 +455,7 @@ def main():
     
     st.markdown("Let's try it out using the above Huffman tree!")
     st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the encoded string:</p>", unsafe_allow_html=True)
-    encoded_input = st.text_input("")
+    encoded_input = st.text_input(" ")
     decoded_output = HuffmanDecoding(encoded_input, the_tree)
     st.markdown("**Decoded Output:** " + decoded_output)
 
