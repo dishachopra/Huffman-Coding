@@ -470,6 +470,10 @@ def main():
 
 hide_st_style = """
             <style>
+            body {
+            background-color: black;
+            color: white;
+        }
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
