@@ -257,9 +257,17 @@ def main():
                 "We give each one a 'weight' based on its frequency. With the weights assigned, we create a special tree called the 'Huffman Tree'. In this tree, the characters with higher "
                 "weights (more frequent) are closer to the top, and those with lower weights (less frequent) are closer to the bottom.")
     
+    st.markdown("<h2 style='text-align: center;color: #FFFF66;'>How is a Huffman Tree Created?</h2>", unsafe_allow_html=True)
+    st.markdown("""
+        - <h2 style="font-size: 20px;">Frequency Analysis:</h2> <span style="font-size: 20px;">Count the frequency of each character in the input data.</span>
+        - <h2 style="font-size: 20px;">Create Nodes:</h2> <span style="font-size: 20px;">Each character becomes a leaf node, and its frequency becomes the weight.
+        - <h2 style="font-size: 20px;">Build Priority Queue:</h2> <span style="font-size: 20px;">Place all the leaf nodes in a priority queue, ordered by their frequencies.
+        - <h2 style="font-size: 20px;">Merge Nodes:</h2> <span style="font-size: 20px;">Repeatedly remove the two nodes with the lowest frequencies from the priority queue. Create a new internal node with a frequency equal to the sum of the two nodes' frequencies. Connect the two nodes as left and right children of the new node and add it back to the priority queue.
+        - <h2 style="font-size: 20px;">Repeat:</h2> <span style="font-size: 20px;">Continue merging nodes until only one node remains in the priority queue. This node becomes the root of the Huffman tree.
+        - <h2 style="font-size: 20px;">Assign Binary Codes:</h2> <span style="font-size: 20px;">Traverse the Huffman tree from the root to each leaf node. Assign a binary code to each character based on the path taken (left or right) during the traversal. The path to the left child is assigned a 0, and the path to the right child is assigned a 1.
+    """, unsafe_allow_html=True)
+    3 
 
-    st.markdown("The tree is built in a way that each character is a leaf node, and the path from the root to the leaf node is the binary code "
-                "assigned to that character. The path to the left is 0, and the path to the right is 1. The upper nodes are the sum of the weights of the lower nodes.The root node is the sum of all the weights.")
     with st.expander("Watch the tree!", expanded=False):
         print_huffman_tree(the_tree)
 
