@@ -4,6 +4,8 @@ import numpy as np
 from streamlit import components
 from graphviz import Digraph
 import pandas as pd
+from collections import Counter, defaultdict
+import heapq
 
 class Nodes:
     def __init__(self, prob, symbol, left=None, right=None):
@@ -157,13 +159,13 @@ def print_symbol_frequencies(symbol_frequencies):
 
 def print_huffman_tree(node):
     dot = Digraph()
-    dot.node('root', label=f"{node.symbol}\n{node.prob}", shape='circle', style='filled', color='white', fillcolor='red')
+    dot.node('root', label=f"{node.symbol}\n{node.prob}", shape='circle', style='filled', color='white', fillcolor='#FFDDCC')  # Use a light shade of orange for the root node
     create_graph(node, dot, 'root')
 
     # Set graph attributes
-    dot.graph_attr.update(bgcolor='None', size='10,10')
-    dot.node_attr.update(shape='circle', style='filled', color='white')
-    dot.edge_attr.update(color='white', fontcolor='white')
+    dot.graph_attr.update(bgcolor='None', size='10,10')  # Use a light shade of gray for the background
+    dot.node_attr.update(shape='circle', style='filled', color='white', fontcolor='black')  # Use black text color for nodes
+    dot.edge_attr.update(color='white', fontcolor='white')  # Use white color for edges
 
     # Render the graph
     dot.format = 'png'
@@ -173,16 +175,17 @@ def print_huffman_tree(node):
 
 def create_graph(node, dot, parent=None):
     if node.left:
-        dot.node(str(node.left), label=f"{node.left.symbol}\n{node.left.prob}", style='filled', fillcolor='#00CCFF')
+        dot.node(str(node.left), label=f"{node.left.symbol}\n{node.left.prob}", style='filled', fillcolor='#00CCFF')  # Use shades of blue for left nodes
         if parent:
-            dot.edge(str(parent), str(node.left), label='0', color='#FF0000')
+            dot.edge(str(parent), str(node.left), label='0', color='#FFFFFF')  # Use white color for edges
         create_graph(node.left, dot, node.left)
 
     if node.right:
-        dot.node(str(node.right), label=f"{node.right.symbol}\n{node.right.prob}", style='filled', fillcolor='#00CCFF')
+        dot.node(str(node.right), label=f"{node.right.symbol}\n{node.right.prob}", style='filled', fillcolor='#99DDFF')  # Use shades of blue for right nodes
         if parent:
-            dot.edge(str(parent), str(node.right), label='1', color='#00FF00')
+            dot.edge(str(parent), str(node.right), label='1', color='#FFFFFF')  # Use white color for edges
         create_graph(node.right, dot, node.right)
+
 
 def check_huffman_codes(codes_input):
     # Check if all codes are binary and unique
