@@ -3,6 +3,7 @@ import math
 import numpy as np
 from streamlit import components
 from graphviz import Digraph
+import pandas as pd
 
 class Nodes:
     def __init__(self, prob, symbol, left=None, right=None):
@@ -232,51 +233,39 @@ def main():
 
     st.markdown("<h1 style='text-align: center; color: #FFFF66;'>Huffman Coding</h1>", unsafe_allow_html=True)
 
-    st.markdown("<p style='text-align: justify;'>Welcome to the world of data compression! In this blog, we will explore the art of reducing the size of data without sacrificing any vital information. Let's start by inputting your data, a sequence of characters, and then proceed to create binary codes for each character.Please enter your data, and for each character, provide a binary code comprising 0s and 1s. Ensure that each code is unique, and only binary codes are accepted.</p>",
-            unsafe_allow_html=True)
+   
+
+
+# Text and options
+    question_text = "If you need to transfer a message which is a string 'aaabbcdd', what code will you choose to represent each character?"
+    options_data = {
+        'Option A': 'a="00", b="01", c="10", d="11"',
+        'Option B': 'a="1", b="011", c="010", d="00"'
+    }
+
+# Display the question and options in a table
+    st.markdown("<p style='text-align: justify;'>Welcome to the world of data compression! In this blog, we will explore the art of reducing the size of data without sacrificing any vital information. Let me start with a question for you all.</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: justify;'>{question_text}</p>", unsafe_allow_html=True)
+
+# Create a DataFrame to display the options in a table
+    options_df = pd.DataFrame(list(options_data.items()), columns=['Options', 'Codes'])
+    st.table(options_df)
+
+# Get user's selection
+    selected_option = st.radio("Select the correct answer:", ['', *options_data.keys()])
+
+# Display prompt based on the user's selection
+    if selected_option == 'Option A':
+        st.info("You are close to the correct answer, but there can be another assignment for characters that can transmit this string into fewer bits. Let's dive into it.")
+    elif selected_option == 'Option B':
+        st.success("That was an intelligent guess. Let's understand the logic behind this assignment, Huffman encoding.")
 
     
     st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the string:</p>", unsafe_allow_html=True)
-    st.write("You can modify the default string")
     the_data = st.text_input("", "huffman")
-    def is_binary_code(code):
-        return all(bit in ('0', '1') for bit in code)
-
-    def is_unique_codes(codes):
-        return len(codes) == len(set(codes.values()))
-    st.markdown("<p style='font-size: 20px; font-weight: bold; color: light blue; margin-bottom: 0;'>Enter the codes for each character:</p>", unsafe_allow_html=True)
-    codes_input = {}
-    for symbol in set(the_data):
-        if symbol in codes_input:
-        # If the code for the symbol has already been entered, skip it.
-            continue
     
-        code = st.text_input(f"Enter code for '{symbol}':")
-        if code:
-            if not is_binary_code(code):
-                st.error("Please enter a binary code (containing only 0s and 1s).")
-                st.stop()
-            codes_input[symbol] = code
-
-# Check if the codes are unique
-    if not is_unique_codes(codes_input):
-        st.error("Please make sure all codes are unique.")
-        st.stop()
-
-    if codes_input:
-        encoded_string = ''.join([codes_input[symbol] for symbol in the_data])
-
-        st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Encoded Output:</h3>", unsafe_allow_html=True)
-        st.latex(f"{encoded_string}")
-
-        st.write("Encoded Output Length (in bits):", f"<span style='color: yellow;'>{len(encoded_string)}</span>", unsafe_allow_html=True)
-
-        # Check if there is a better way to encode
-        if len(set(encoded_string)) == 1:
-            st.markdown("Wow! The encoded string consists of only one unique symbol. It cannot be compressed further.")
-        else:
-            st.markdown("Great! Now that the data is encoded, let's see if there's a better way to compress it.")
-
+            
+   
     # Section 2: Explanation of Huffman Coding
     st.markdown("<h2 style='text-align: center;color: #FFFF66;'>The Problem:</h2>", unsafe_allow_html=True)
 
@@ -312,14 +301,14 @@ def main():
     """, unsafe_allow_html=True)
     
 
-    with st.expander("Watch the tree!", expanded=False):
-        print_huffman_tree(the_tree)
+  
+    print_huffman_tree(the_tree)
 
     # Symbol Frequencies and Codes
-    with st.expander("Symbols, Frequencies and Codes", expanded=False):
-        st.markdown("<h2 style='text-align: center;color: #FFFF66;'>Symbols, Frequencies and Codes</h2>", unsafe_allow_html=True)
-        symbol_frequencies = calFreq(the_data)
-        print_symbol_frequencies(symbol_frequencies)    
+    
+    st.markdown("<h2 style='text-align: center;color: #FFFF66;'>Symbols, Frequencies and Codes</h2>", unsafe_allow_html=True)
+    symbol_frequencies = calFreq(the_data)
+    print_symbol_frequencies(symbol_frequencies)    
     st.markdown("<h3 style='text-align: center; color: #FFFF66;'>Saving Space and Time:</h3>", unsafe_allow_html=True)
 
     st.markdown("Since more frequent characters have shorter codes, when we compress the data using Huffman Coding, the more common characters "
@@ -358,7 +347,8 @@ def main():
 
 # Display the fully written entropy equation
     entropy_eq_fully_written = f"Entropy = -(" + " - ".join([f"{probability:.2f} \cdot \log_2(1 / {probability:.2f})" for probability in probabilities]) + ")"
-    st.latex(entropy_eq_fully_written)
+    with st.expander("Entropy Equation"):
+        st.latex(entropy_eq_fully_written)
 
     # Calculate and print entropy
     entropy_text = f"<span style='color: white;'>Entropy of the input data: </span><span style='color: yellow;'>{entropy:.2f}</span>"
@@ -414,8 +404,8 @@ def main():
     avg_eq_fully_written = f"L(X) = " + " + ".join([f"{probability:.2f} \cdot {length:.2f}" for probability, length in zip(probabilities, lengths)])
 
 # Display the value of average_length and the fully written average length equation
-   
-    st.latex(avg_eq_fully_written)
+    with st.expander("Average Length Equation"):
+        st.latex(avg_eq_fully_written)
 
 
 
